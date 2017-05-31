@@ -43,8 +43,10 @@ public class Driver {
 		FileWriter writer;
 		
 		try {
-			CloudantClient client = ClientBuilder.account("someaccount").username("someusername").password("somepassword").build();			
+			//CloudantClient client = ClientBuilder.account("someaccount").username("someusername").password("somepassword").build();			
 						
+			CloudantClient client = ClientBuilder.account("alainlou").username("alainlou").password("alainlou").build();	
+			
 			db = client.database("dinesafe", false);
 			
 			reader = new FileReader(file);
