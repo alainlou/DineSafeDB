@@ -36,6 +36,8 @@ public class Driver {
     private static boolean keepGoing = false;
     private static JSONObject example;
 	private static Database db;
+	private static int counter;
+	
 	public static void main(String[] args) throws IOException {
 		File file = new File("dinesafe.xml");
 		File out = new File("Output.txt");
@@ -102,23 +104,27 @@ public class Driver {
 							
 									System.out.println(r);
 									db.save(r);
+								
+									counter++;
 							}
 							catch(NumberFormatException f){
 								Review r = new Review(Integer.parseInt(e.getElementsByTagName("INSPECTION_ID").item(0).getTextContent()),
-										Integer.parseInt(e.getElementsByTagName("ESTABLISHMENT_ID").item(0).getTextContent()),
-										e.getElementsByTagName("ESTABLISHMENT_NAME").item(0).getTextContent(), 
-										e.getElementsByTagName("ESTABLISHMENTTYPE").item(0).getTextContent(), 
-										e.getElementsByTagName("ESTABLISHMENT_ADDRESS").item(0).getTextContent(), 
-										e.getElementsByTagName("ESTABLISHMENT_STATUS").item(0).getTextContent(), 
-										Integer.parseInt(e.getElementsByTagName("MINIMUM_INSPECTIONS_PERYEAR").item(0).getTextContent()),
-										e.getElementsByTagName("INFRACTION_DETAILS").item(0).getTextContent(), 
-										e.getElementsByTagName("INSPECTION_DATE").item(0).getTextContent(), 
-										e.getElementsByTagName("SEVERITY").item(0).getTextContent(), 
-										e.getElementsByTagName("ACTION").item(0).getTextContent(),
-										e.getElementsByTagName("COURT_OUTCOME").item(0).getTextContent());
-								
-										System.out.println(r);
-										db.save(r);
+									Integer.parseInt(e.getElementsByTagName("ESTABLISHMENT_ID").item(0).getTextContent()),
+									e.getElementsByTagName("ESTABLISHMENT_NAME").item(0).getTextContent(), 
+									e.getElementsByTagName("ESTABLISHMENTTYPE").item(0).getTextContent(), 
+									e.getElementsByTagName("ESTABLISHMENT_ADDRESS").item(0).getTextContent(), 
+									e.getElementsByTagName("ESTABLISHMENT_STATUS").item(0).getTextContent(), 
+									Integer.parseInt(e.getElementsByTagName("MINIMUM_INSPECTIONS_PERYEAR").item(0).getTextContent()),
+									e.getElementsByTagName("INFRACTION_DETAILS").item(0).getTextContent(), 
+									e.getElementsByTagName("INSPECTION_DATE").item(0).getTextContent(), 
+									e.getElementsByTagName("SEVERITY").item(0).getTextContent(), 
+									e.getElementsByTagName("ACTION").item(0).getTextContent(),
+									e.getElementsByTagName("COURT_OUTCOME").item(0).getTextContent());
+							
+									System.out.println(r);
+									db.save(r);
+							
+									counter++;
 							}
 						//}
 						
@@ -176,7 +182,8 @@ public class Driver {
 		catch (JSONException e){
 			e.printStackTrace();
 		}
-				
+		
+		System.out.println(counter);
 	}
 
 }
