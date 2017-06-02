@@ -14,6 +14,8 @@ public class Review {
     private String action;
     private String courtOutcome;
     private double amountFined;
+    private double longitude;
+    private double latitude;
     
     public void setAddress(String address) {
         this.address = address;
@@ -48,7 +50,43 @@ public class Review {
         courtOutcome = l;
         amountFined = m;
     }
-
+    
+    public Review(int a, int b, String c, String d, String e, String f, int g, String h, String i, String j, String k, String l, double m, double Long, double Lat) {
+        inspectionID = a;
+        establishmentID = b;
+        name = c;
+        type = d;
+        address = e;
+        status = f;
+        minimumInspectionsPerYear = g;
+        infractionDetails = h;
+        inspectionDate = i;
+        severity = j;
+        action = k;
+        courtOutcome = l;
+        amountFined = m;
+        longitude = Long;
+		latitude = Lat;
+    }
+	
+	
+	public String getAddress(){
+		return address;
+	}
+	
+	public void setCoordinates(double Long, double Lat){
+		longitude = Long;
+		latitude = Lat;
+	}
+	
+	@Override
+	public String toString() {
+		return "Review [inspectionID=" + inspectionID + ", establishmentID=" + establishmentID + ", name=" + name
+				+ ", type=" + type + ", address=" + address + ", status=" + status + ", minimumInspectionsPerYear="
+				+ minimumInspectionsPerYear + ", infractionDetails=" + infractionDetails + ", inspectionDate="
+				+ inspectionDate + ", severity=" + severity + ", action=" + action + ", courtOutcome=" + courtOutcome
+				+ ", amountFined=" + amountFined + "]";
+	}
     /**public String getName() {
         return name;
     }
@@ -92,16 +130,7 @@ public class Review {
     public void setMinimumInspectionsPerYear(int minimuminspectionsperyear) {
         this.minimumInspectionsPerYear = minimuminspectionsperyear;
     }
-
-    @Override
-    public String toString() {
-        return "Restaurant{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", type='" + type + '\'' +
-                ", address='" + address + '\'' +
-                ", status='" + status + '\'' +
-                ", minimuminspectionsperyear=" + minimumInspectionsperYear +
-                '}';
-    }**/
+    **/
+    
+    
 }
