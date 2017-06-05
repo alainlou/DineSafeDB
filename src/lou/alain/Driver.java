@@ -11,6 +11,11 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -46,20 +51,22 @@ public class Driver {
 	private static int counter = 0;
 	private File file;
 	
-	public static void main(String[] args) throws FileNotFoundException{
+	public static void main(String[] args) throws ParseException, ApiException, InterruptedException, IOException{
 		File file = new File("dinesafe.xml");						
-		CloudantClient client = ClientBuilder.account("alainlou").username("alainlou").password("alainlou").build();
-		db = client.database("dinesafe", false);
-		allRightNow = client.database("withcoordinates", true);
+		CloudantClient client = ClientBuilder.account("GETYOUROWN").username("GETYOUROWN").password("GETYOUROWN").build();
+		db = client.database("withcoordinates", false);
+		allRightNow = client.database("final", true);
 		
 		InputStream is = new FileInputStream(file);
 		BufferedInputStream bis = new BufferedInputStream(is);
 		
 		//uploadDatabase(bis);
-		String selector = String.format("\"selector\": { \"name\": {\"$eq\": \"%s\"}}", "POPEYE'S");
+		String selector = String.format("\"selector\": { \"name\": {\"$eq\": \"%s\"}}", "SAKURA SUSHI");
 		List<Review> r = db.findByIndex(selector, Review.class);
 		
 		//getCoordinatesForDB(r);
+		
+		toRestaurants(r);
 		
 		System.out.println(r.size());
 		
@@ -83,6 +90,41 @@ public class Driver {
 			System.out.println(a.getAddress());
 		}
 		
+	}
+	
+	public static void toRestaurants(List<Review> r) throws ParseException{
+		ArrayList<String> addresses = new ArrayList<String>();
+		for(int i = 0; i < r.size(); i++){
+			Review a = r.get(i);
+			if(!addresses.contains(a.getAddress())){
+				addresses.add(a.getAddress());
+			}
+		}
+		
+		for(String s: addresses){
+			Date temp = new SimpleDateFormat("yyyy-MM-dd").parse("2000-01-27");
+			Review toUse = new Review();
+			ArrayList<UsefulReview> urs = new ArrayList<UsefulReview>();
+			for(int i = 0; i < r.size(); i++){
+				Review a = r.get(i);
+				if(a.getAddress().equals(s)){
+					if(new SimpleDateFormat("yyyy-MM-dd").parse(a.getInspectionDate()).after(temp)){
+						temp = new SimpleDateFormat("yyyy-MM-dd").parse(a.getInspectionDate());
+						toUse = a;
+					}
+					urs.add(toUsefulReview(a));
+				}
+				Collections.sort(urs);
+			}
+			Restaurant restaurant = new Restaurant(toUse.getEstablishmentID(), toUse.getName(), toUse.getType(), toUse.getAddress(), toUse.getStatus(), toUse.getMinimumInspectionsPerYear(), toUse.getLongitude(), toUse.getLatitude(), urs);
+			allRightNow.save(restaurant);
+			counter++;
+		}
+	}
+	
+	public static UsefulReview toUsefulReview(Review r){
+		UsefulReview ur = new UsefulReview(r.getInspectionID(), r.getInfractionDetails(), r.getInspectionDate(), r.getSeverity(), r.getAction(), r.getCourtOutcome(), r.getAmountFined());
+		return ur;
 	}
 	
 	public Review getReview(){

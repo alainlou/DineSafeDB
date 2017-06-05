@@ -70,6 +70,51 @@ public class Review {
     }
 	
 	
+	public Review() {
+		// TODO Auto-generated constructor stub
+	}
+	public int getInspectionID() {
+		return inspectionID;
+	}
+	public int getEstablishmentID() {
+		return establishmentID;
+	}
+	public String getName() {
+		return name;
+	}
+	public String getType() {
+		return type;
+	}
+	public String getStatus() {
+		return status;
+	}
+	public int getMinimumInspectionsPerYear() {
+		return minimumInspectionsPerYear;
+	}
+	public String getInfractionDetails() {
+		return infractionDetails;
+	}
+	public String getInspectionDate() {
+		return inspectionDate;
+	}
+	public String getSeverity() {
+		return severity;
+	}
+	public String getAction() {
+		return action;
+	}
+	public String getCourtOutcome() {
+		return courtOutcome;
+	}
+	public double getAmountFined() {
+		return amountFined;
+	}
+	public double getLongitude() {
+		return longitude;
+	}
+	public double getLatitude() {
+		return latitude;
+	}
 	public String getAddress(){
 		return address;
 	}
@@ -87,6 +132,9 @@ public class Review {
 				+ inspectionDate + ", severity=" + severity + ", action=" + action + ", courtOutcome=" + courtOutcome
 				+ ", amountFined=" + amountFined + "]";
 	}
+	
+	
+	
     /**public String getName() {
         return name;
     }
