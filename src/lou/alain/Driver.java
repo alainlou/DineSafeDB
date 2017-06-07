@@ -40,29 +40,60 @@ import com.google.maps.GeocodingApi;
 import com.google.maps.errors.ApiException;
 import com.google.maps.model.GeocodingResult;
 
+/**
+ * Handles all the Cloudant-relevant aspects of the project
+ * @author Alain
+ *
+ */
 public class Driver {
+	/**
+	 * Makes the output of some testing nicer looking
+	 */
 	public int PRETTY_PRINT_INDENT_FACTOR = 4;
+	/**
+	 * Used by StringBuilder to concatenate strings into 1 long output
+	 */
 	public String everything;
+    /**
+     * A test XML tag to parse
+     */
     public String TEST_XML_STRING = "<?xml version=\"1.0\" ?><test attrib=\"moretest\">Turn this to JSON</test>";
-    private boolean keepGoing = false;
-    private JSONObject example;
-	private static Database db;
-	private static Database allRightNow;
+	/**
+	 * The read Cloudant database
+	 */
+	private static Database fromDB;
+	/**
+	 * The write Cloudant database
+	 */
+	private static Database toDB;
+	/**
+	 * Increments when there is a new document saved onto the new DB - used to check when copying DB with fromDB.size() to check how many documents were lost
+	 */
 	private static int counter = 0;
+	/**
+	 * File from the dinesafe.xml
+	 */
 	private File file;
 	
+	/**
+	 * @param args
+	 * @throws ParseException if there is a problem parsing through documents 
+	 * @throws ApiException if there is a problem with the Cloudant API
+	 * @throws InterruptedException if the thread is active but another process interrupts this thread
+	 * @throws IOException the InputStream trys to read an invalid index
+	 */
 	public static void main(String[] args) throws ParseException, ApiException, InterruptedException, IOException{
 		File file = new File("dinesafe.xml");						
 		CloudantClient client = ClientBuilder.account("GETYOUROWN").username("GETYOUROWN").password("GETYOUROWN").build();
-		db = client.database("withcoordinates", false);
-		allRightNow = client.database("final", true);
+		fromDB = client.database("withcoordinates", false);
+		toDB = client.database("finalwithcoordinates", true);
 		
 		InputStream is = new FileInputStream(file);
 		BufferedInputStream bis = new BufferedInputStream(is);
 		
 		//uploadDatabase(bis);
-		String selector = String.format("\"selector\": { \"name\": {\"$eq\": \"%s\"}}", "SAKURA SUSHI");
-		List<Review> r = db.findByIndex(selector, Review.class);
+		String selector = String.format("\"selector\": { \"name\": {\"$gt\": \"%s\"}}", "0");
+		List<Review> r = fromDB.findByIndex(selector, Review.class);
 		
 		//getCoordinatesForDB(r);
 		
@@ -73,6 +104,13 @@ public class Driver {
 		System.out.println(counter);
 	}
 	
+	/**
+	 * Adds coordinates with Google's Geocoding API and uploads them to the toDB Cloudant database
+	 * @param r A list of Review objects
+	 * @throws ApiException if there's a problem with the Google Geocoding API
+	 * @throws InterruptedException if the thread is active but another process interrupts this thread
+	 * @throws IOException if it calls an invalid index on an array
+	 */
 	public static void getCoordinatesForDB(List<Review> r) throws ApiException, InterruptedException, IOException{
 		GeoApiContext context = new GeoApiContext().setApiKey("GETYOUROWN");
 		
@@ -85,13 +123,18 @@ public class Driver {
 			catch(IndexOutOfBoundsException e){
 				continue;
 			}
-			allRightNow.save(a);
+			toDB.save(a);
 			counter++;
 			System.out.println(a.getAddress());
 		}
 		
 	}
 	
+	/**
+	 * Reads from a list of Review objects and creates Restaurant JSON objects from them that are uploaded to toDB 
+	 * @param r A List of Review objects
+	 * @throws ParseException if there has been a problem when calling .contains()
+	 */
 	public static void toRestaurants(List<Review> r) throws ParseException{
 		ArrayList<String> addresses = new ArrayList<String>();
 		for(int i = 0; i < r.size(); i++){
@@ -117,20 +160,25 @@ public class Driver {
 				Collections.sort(urs);
 			}
 			Restaurant restaurant = new Restaurant(toUse.getEstablishmentID(), toUse.getName(), toUse.getType(), toUse.getAddress(), toUse.getStatus(), toUse.getMinimumInspectionsPerYear(), toUse.getLongitude(), toUse.getLatitude(), urs);
-			allRightNow.save(restaurant);
+			toDB.save(restaurant);
 			counter++;
 		}
 	}
 	
+	/**
+	 * Returns a UsefulReview object from a Review object, taking away a few class variables that are included in the Restaurant class
+	 * @param r A Review object
+	 * @return A UsefulReview object that has a few less irrelevant class variables
+	 */
 	public static UsefulReview toUsefulReview(Review r){
-		UsefulReview ur = new UsefulReview(r.getInspectionID(), r.getInfractionDetails(), r.getInspectionDate(), r.getSeverity(), r.getAction(), r.getCourtOutcome(), r.getAmountFined());
+		UsefulReview ur = new UsefulReview(r.getInspectionID(), r.getInfractionDetails(),r.getStatus(), r.getInspectionDate(), r.getSeverity(), r.getAction(), r.getCourtOutcome(), r.getAmountFined());
 		return ur;
 	}
 	
-	public Review getReview(){
-		return null;
-	}
-	
+	/**
+	 * @param bis A BufferedInputStream (in the main function it was created for the dinesafe.xml InputStream
+	 * @throws IOException if there is an error parsing through the document
+	 */
 	public static void uploadDatabase(BufferedInputStream bis) throws IOException{
 		try {
 			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -160,7 +208,7 @@ public class Driver {
 							Double.parseDouble(e.getElementsByTagName("AMOUNT_FINED").item(0).getTextContent()));
 					
 							System.out.println(r);
-							db.save(r);
+							fromDB.save(r);
 						
 							counter++;
 					}
@@ -179,7 +227,7 @@ public class Driver {
 							e.getElementsByTagName("COURT_OUTCOME").item(0).getTextContent());
 					
 							System.out.println(r);
-							db.save(r);
+							fromDB.save(r);
 					
 							counter++;
 					}
