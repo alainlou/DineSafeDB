@@ -85,15 +85,21 @@ public class Driver {
 	public static void main(String[] args) throws ParseException, ApiException, InterruptedException, IOException{
 		File file = new File("dinesafe.xml");						
 		CloudantClient client = ClientBuilder.account("GETYOUROWN").username("GETYOUROWN").password("GETYOUROWN").build();
-		fromDB = client.database("withcoordinates", false);
-		toDB = client.database("finalwithcoordinates", true);
+		fromDB = client.database("GETYOUROWN", false);
+		toDB = client.database("GETYOUROWN", false);
 		
 		InputStream is = new FileInputStream(file);
 		BufferedInputStream bis = new BufferedInputStream(is);
 		
 		//uploadDatabase(bis);
-		String selector = String.format("\"selector\": { \"name\": {\"$gt\": \"%s\"}}", "0");
+		String selector = String.format("\"selector\": { \"name\": {\"$eq\": \"%s\"}}", "STARBUCKS");
 		List<Review> r = fromDB.findByIndex(selector, Review.class);
+		
+		/**ArrayList<String> restaurants = new ArrayList<String>();
+		for(Review q: r){
+			if(!restaurants.contains(q.getName()))
+				restaurants.add(q.getName());
+		}**/
 		
 		//getCoordinatesForDB(r);
 		
